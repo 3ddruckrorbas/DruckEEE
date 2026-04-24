@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rorbas 3D Druck | Enrique & Jack</title>
+    <meta name="description"
+        content="3D-Druck Service aus Rorbas. Enrique & Jack drucken dein Projekt – schnell, lokal und individuell." />
+    <link rel="icon" type="image/svg+xml" href="https://lucide.dev/favicon.ico" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Sora:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel (für JSX Support im Browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        :root {
+            --amber: #f59e0b;
+            --amber-light: #fef3c7;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-family: 'Nunito', system-ui, sans-serif;
+        }
+
+        .font-display {
+            font-family: 'Sora', sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .anim-fadeInUp {
+            animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .anim-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .anim-scaleIn {
+            animation: scaleIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .anim-delay-1 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+
+        .anim-delay-2 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        .anim-delay-3 {
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        .anim-delay-4 {
+            animation-delay: 0.4s;
+            opacity: 0;
+        }
+
+        .category-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-card:active {
+            transform: scale(0.97);
+        }
+
+        /* Admin dark theme overrides */
+        .admin-panel {
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+
+        .admin-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+        }
+
+        .admin-input {
+            background: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 10px 0;
+            color: white;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .admin-input:focus {
+            border-bottom-color: #f59e0b;
+        }
+
+        .admin-select {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: white;
+            outline: none;
+            width: 100%;
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'system-ui', 'sans-serif'],
+                        display: ['Sora', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        ebony: '#0f172a',
+                        gold: {
+                            DEFAULT: '#f59e0b',
+                            50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d',
+                            400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309',
+                        },
+                    },
+                    borderRadius: {
+                        '4xl': '2rem',
+                        '5xl': '2.5rem',
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script id="main-script" type="text/babel">
+        // --- ICONS ---
+        const Icon = ({ children, className, ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
+        );
+
+        const Printer = (props) => <Icon {...props}><path d="M5 21h14" /><path d="M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14" /><path d="M19 10H5" /><rect x="10" y="8" width="4" height="4" /><rect x="8" y="16" width="8" height="2" /></Icon>;
+        const Menu = (props) => <Icon {...props}><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></Icon>;
+        const ArrowRight = (props) => <Icon {...props}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></Icon>;
+        const ArrowLeft = (props) => <Icon {...props}><path d="m12 19-7-7 7-7" /><path d="M19 12H5" /></Icon>;
+        const Box = (props) => <Icon {...props}><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" x2="12" y1="22.08" y2="12" /></Icon>;
+        const Zap = (props) => <Icon {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></Icon>;
+        const Heart = (props) => <Icon {...props}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></Icon>;
+        const ClipboardList = (props) => <Icon {...props}><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></Icon>;
+        const Settings = (props) => <Icon {...props}><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.72l-.15.1a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></Icon>;
+        const QrCode = (props) => <Icon {...props}><rect width="5" height="5" x="3" y="3" rx="1" /><rect width="5" height="5" x="16" y="3" rx="1" /><rect width="5" height="5" x="3" y="16" rx="1" /><path d="M21 16h-3a2 2 0 0 0-2 2v3" /><path d="M21 21v.01" /><path d="M12 7v3" /><path d="M7 12h3" /><path d="M12 12h.01" /><path d="M16 12h.01" /><path d="M12 16h.01" /><path d="M16 16h.01" /><path d="M16 21h.01" /><path d="M12 21h.01" /><path d="M21 12h.01" /></Icon>;
+        const Truck = (props) => <Icon {...props}><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" /><path d="M15 18H9" /><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" /><circle cx="17" cy="18" r="2" /><circle cx="7" cy="18" r="2" /></Icon>;
+        const FileText = (props) => <Icon {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" /></Icon>;
+        const Send = (props) => <Icon {...props}><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></Icon>;
+        const AlertCircle = (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></Icon>;
+        const CheckCircle2 = (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></Icon>;
+        const Sparkles = (props) => <Icon {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z" /><path d="M5 3v4" /><path d="M9 3v4" /><path d="M3 5h4" /><path d="M3 9h4" /></Icon>;
+        const Info = (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></Icon>;
+        const Mail = (props) => <Icon {...props}><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></Icon>;
+        const MapPin = (props) => <Icon {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></Icon>;
+        const Upload = (props) => <Icon {...props}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" x2="12" y1="3" y2="15" /></Icon>;
+        const Trash2 = (props) => <Icon {...props}><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></Icon>;
+        const Paperclip = (props) => <Icon {...props}><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></Icon>;
+        const ChevronDown = (props) => <Icon {...props}><path d="m6 9 6 6 6-6" /></Icon>;
+        const HelpCircle = (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" /></Icon>;
+        const Tag = (props) => <Icon {...props}><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" /><path d="M7 7h.01" /></Icon>;
+        const ShieldBan = (props) => <Icon {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /><path d="m4.6 16.4 14.8-8.4" /></Icon>;
+        const Lock = (props) => <Icon {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></Icon>;
+        const CircleDollarSign = (props) => <Icon {...props}><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" /><path d="M12 18V6" /></Icon>;
+        const User = (props) => <Icon {...props}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></Icon>;
+        const Edit = (props) => <Icon {...props}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></Icon>;
+        const ExternalLink = (props) => <Icon {...props}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" x2="21" y1="14" y2="3" /></Icon>;
+        const Database = (props) => <Icon {...props}><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" /></Icon>;
+        const RefreshCw = (props) => <Icon {...props}><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 16h5v5" /></Icon>;
+        const ServerIcon = (props) => <Icon {...props}><rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" x2="6.01" y1="6" y2="6" /><line x1="6" x2="6.01" y1="18" y2="18" /></Icon>;
+        const Plus = (props) => <Icon {...props}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></Icon>;
+        const Eye = (props) => <Icon {...props}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></Icon>;
+        const EyeOff = (props) => <Icon {...props}><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" x2="22" y1="2" y2="22" /></Icon>;
+        const Check = (props) => <Icon {...props}><polyline points="20 6 9 17 4 12" /></Icon>;
+        const X = (props) => <Icon {...props}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></Icon>;
+        const Key = (props) => <Icon {...props}><path d="m21 2-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4" /></Icon>;
+        const Store = (props) => <Icon {...props}><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" /><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" /><path d="M2 7h20" /><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7" /></Icon>;
+        const Lightbulb = (props) => <Icon {...props}><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></Icon>;
+        const Gamepad2 = (props) => <Icon {...props}><line x1="6" x2="10" y1="12" y2="12" /><line x1="8" x2="8" y1="10" y2="14" /><line x1="15" x2="15.01" y1="13" y2="13" /><line x1="18" x2="18.01" y1="11" y2="11" /><rect width="20" height="12" x="2" y="6" rx="2" /></Icon>;
+        const Wrench = (props) => <Icon {...props}><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></Icon>;
+        const Leaf = (props) => <Icon {...props}><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z" /><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" /></Icon>;
+        const Triangle = (props) => <Icon {...props}><path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /></Icon>;
+
+        // --- CONSTANTS ---
+        const ADMIN_USER = 'AdminRorbas';
+        const BLACKLISTED_IDS = ["example-id-123456"];
+        const ORDER_STATUS = {
+            PENDING: { id: 'pending', label: 'Eingegangen', color: 'bg-amber-100 text-amber-700' },
+            IN_PROGRESS: { id: 'in_progress', label: 'In Bearbeitung', color: 'bg-sky-100 text-sky-700' },
+            DONE: { id: 'done', label: 'Fertig', color: 'bg-emerald-100 text-emerald-700' },
+            SHIPPED: { id: 'shipped', label: 'Abgeholt / Versendet', color: 'bg-slate-100 text-slate-600' },
+        };
+        const EMAIL_RECIPIENT = "kontakt@3ddruckrorbas.ch";
+        const CUSTOM_FILAMENT_SURCHARGE = 3.00;
+        const NFC_SURCHARGE = 3.00;
+        const ViewState = {
+            HOME: 'HOME', ORDER: 'ORDER', SUCCESS: 'SUCCESS', BANNED: 'BANNED',
+            AGB: 'AGB', MY_ORDERS: 'MY_ORDERS', ABOUT_US: 'ABOUT_US',
+            ADMIN_LOGIN: 'ADMIN_LOGIN', ADMIN_DASHBOARD: 'ADMIN_DASHBOARD'
+        };
+
+        // --- HELPERS & SERVICES ---
+        const generateUUID = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+
+        const getDeviceId = () => {
+            try {
+                let id = localStorage.getItem('rorbas_device_id');
+                if (!id) { id = generateUUID(); localStorage.setItem('rorbas_device_id', id); }
+                return id;
+            } catch (e) { return generateUUID(); }
+        };
+
+        const API_URL = '/api';
+        const ApiService = {
+            getOrders: async (deviceId) => {
+                const query = deviceId ? `?deviceId=${deviceId}` : '';
+                const res = await fetch(`${API_URL}/orders${query}`, { headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' } });
+                return await res.json();
+            },
+            addOrder: async (data, deviceId) => {
+                const res = await fetch(`${API_URL}/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...data, deviceId }) });
+                return await res.json();
+            },
+            sendQuestion: async (message) => {
+                const res = await fetch(`${API_URL}/questions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }) });
+                return await res.json();
+            },
+            updateOrder: async (id, updates) => {
+                const res = await fetch(`${API_URL}/orders/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) });
+                return await res.json();
+            },
+            deleteOrder: async (id) => { const res = await fetch(`${API_URL}/orders/${id}`, { method: 'DELETE' }); return await res.json(); },
+            getBanned: async () => { try { const res = await fetch(`${API_URL}/banned`); return await res.json(); } catch (e) { return []; } },
+            banDevice: async (deviceId) => { const res = await fetch(`${API_URL}/banned`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deviceId }) }); return await res.json(); },
+            unbanDevice: async (deviceId) => { const res = await fetch(`${API_URL}/banned/${deviceId}`, { method: 'DELETE' }); return await res.json(); },
+            getFilaments: async () => { try { const res = await fetch(`${API_URL}/filaments`); return await res.json(); } catch (e) { return []; } },
+            addFilament: async (data) => { const res = await fetch(`${API_URL}/filaments`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); return await res.json(); },
+            updateFilament: async (id, updates) => { const res = await fetch(`${API_URL}/filaments/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) }); return await res.json(); },
+            deleteFilament: async (id) => { const res = await fetch(`${API_URL}/filaments/${id}`, { method: 'DELETE' }); return await res.json(); },
+            login: async (password, deviceId) => { const res = await fetch(`${API_URL}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password, deviceId }) }); if (!res.ok) throw new Error('Ungültiges Passwort'); return await res.json(); },
+            getPasswords: async () => { try { const res = await fetch(`${API_URL}/admin/passwords`); return await res.json(); } catch (e) { return []; } },
+            addPassword: async (password) => { const res = await fetch(`${API_URL}/admin/passwords`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) }); return await res.json(); },
+            deletePassword: async (password) => { const res = await fetch(`${API_URL}/admin/passwords/${encodeURIComponent(password)}`, { method: 'DELETE' }); if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Fehler beim Löschen'); } return await res.json(); },
+            getTemplates: async () => { try { const res = await fetch(`${API_URL}/templates`); return await res.json(); } catch (e) { return []; } },
+            addTemplate: async (data) => { const res = await fetch(`${API_URL}/templates`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); return await res.json(); },
+            updateTemplate: async (id, updates) => { const res = await fetch(`${API_URL}/templates/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) }); return await res.json(); },
+            deleteTemplate: async (id) => { const res = await fetch(`${API_URL}/templates/${id}`, { method: 'DELETE' }); return await res.json(); }
+        };
+
+        // --- FRESH UI BUTTON COMPONENT ---
+        const Btn = ({ variant = 'primary', size = 'md', className = '', children, ...props }) => {
+            const base = "inline-flex items-center justify-center font-bold rounded-2xl transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed gap-2";
+            const variants = {
+                primary: "bg-slate-900 text-white hover:bg-slate-700 shadow-sm",
+                secondary: "bg-white text-slate-800 border border-slate-200 hover:border-slate-400 shadow-sm",
+                amber: "bg-amber-400 text-slate-900 hover:bg-amber-300 shadow-sm",
+                sky: "bg-sky-100 text-sky-700 hover:bg-sky-200",
+                ghost: "text-slate-600 hover:text-slate-900 hover:bg-slate-100",
+                danger: "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100",
+                outline: "border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white",
+            };
+            const sizes = { xs: "px-3 py-1.5 text-xs", sm: "px-4 py-2 text-sm", md: "px-5 py-3 text-sm", lg: "px-8 py-4 text-base", xl: "px-10 py-5 text-lg" };
+            return <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props}>{children}</button>;
+        };
+
+        // Legacy Button alias (keeps old variants working in admin)
+        const Button = ({ variant = 'primary', size = 'md', className = '', children, ...props }) => {
+            const base = "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed gap-2";
+            const variants = {
+                primary: "bg-slate-900 text-white hover:bg-slate-700",
+                secondary: "bg-white text-slate-700 border border-slate-200 hover:border-slate-400",
+                outline: "border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white",
+                ghost: "text-slate-500 hover:text-slate-900 hover:bg-slate-100",
+                danger: "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100",
+            };
+            const sizes = { xs: "px-2 py-1 text-xs", sm: "px-3 py-1.5 text-sm", md: "px-5 py-2.5 text-sm", lg: "px-8 py-4 text-base" };
+            return <button className={`${base} ${variants[variant] || variants.primary} ${sizes[size]} ${className}`} {...props}>{children}</button>;
+        };
+
+        // --- AGB VIEW ---
+        const AGBView = ({ onBack }) => {
+            const [showQuestionForm, setShowQuestionForm] = React.useState(false);
+            const [question, setQuestion] = React.useState('');
+            const [isSending, setIsSending] = React.useState(false);
+            const [sent, setSent] = React.useState(false);
+            const questionFormRef = React.useRef(null);
+
+            React.useEffect(() => {
+                if (showQuestionForm && questionFormRef.current) {
+                    setTimeout(() => { questionFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+                }
+            }, [showQuestionForm]);
+
+            const handleSend = async (e) => {
+                e.preventDefault();
+                if (!question.trim()) return;
+                setIsSending(true);
+                try {
+                    await ApiService.sendQuestion(question);
+                    setSent(true);
+                    setQuestion('');
+                    setTimeout(() => setSent(false), 5000);
+                } catch (err) { alert("Fehler beim Senden der Nachricht."); }
+                finally { setIsSending(false); }
+            };
+
+            return (
+                <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6 anim-fadeIn">
+                    <div className="mb-8">
+                        <Btn variant="ghost" size="sm" onClick={onBack} className="text-slate-500">
+                            <ArrowLeft className="h-4 w-4" /> Zurück
+                        </Btn>
+                    </div>
+                    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-10">
+                        <h1 className="font-display text-2xl font-bold text-slate-900 mb-8">Allgemeine Geschäftsbedingungen</h1>
+                        <div className="space-y-8 text-slate-600 leading-relaxed text-sm">
+                            <section>
+                                <h2 className="font-bold text-slate-800 mb-2">§1 Geltungsbereich</h2>
+                                <p>Diese Allgemeinen Geschäftsbedingungen gelten für die Nutzung der Webseite https://3ddruckrorbas.ch durch private Nutzer.</p>
+                            </section>
+                            <section>
+                                <h2 className="font-bold text-slate-800 mb-2">§2 Art des Angebots</h2>
+                                <p>Die Webseite dient der Bereitstellung von Informationen sowie der Kontaktaufnahme im Zusammenhang mit privaten, nicht gewerblichen Leistungen im Bereich 3D-Druck.</p>
+                            </section>
+                            <section>
+                                <h2 className="font-bold text-slate-800 mb-2">§3 Vertragsschluss und Ablauf</h2>
+                                <div className="space-y-3 mt-3">
+                                    <div className="flex gap-3 p-3 bg-amber-50 rounded-2xl">
+                                        <span className="font-bold text-amber-600 min-w-[80px]">Anfrage:</span>
+                                        <p>Der Kunde übermittelt dem Anbieter eine unverbindliche Anfrage (inkl. 3D-Modell/Datei und gewünschten Spezifikationen).</p>
+                                    </div>
+                                    <div className="flex gap-3 p-3 bg-sky-50 rounded-2xl">
+                                        <span className="font-bold text-sky-600 min-w-[80px]">Offerte:</span>
+                                        <p>Der Anbieter prüft die Anfrage und sendet dem Kunden eine kostenlose Offerte (Angebot) per E-Mail oder über das System zu.</p>
+                                    </div>
+                                    <div className="flex gap-3 p-3 bg-emerald-50 rounded-2xl">
+                                        <span className="font-bold text-emerald-600 min-w-[80px]">Dateneignung:</span>
+                                        <p>Mit der Zusage bestätigt der Kunde, dass die Daten final sind. Nachträgliche Änderungen können Zusatzkosten verursachen.</p>
+                                    </div>
+                                </div>
+                            </section>
+                            <section>
+                                <h2 className="font-bold text-slate-800 mb-2">§4 Preise und Zahlungsbedingungen</h2>
+                                <div className="space-y-2 mt-2">
+                                    <p><span className="font-semibold text-slate-700">Währung:</span> Alle Preise verstehen sich in Schweizer Franken (CHF).</p>
+                                    <p><span className="font-semibold text-slate-700">Zahlung:</span> Die Produktion erfolgt in der Regel erst nach Vorauskasse solange nichts anderes vereinbart wurde.</p>
+                                    <p><span className="font-semibold text-slate-700">Versand:</span> Versandkosten werden separat ausgewiesen.</p>
+                                </div>
+                            </section>
+                            <section>
+                                <h2 className="font-bold text-slate-800 mb-2">§6 Dateneignung und Haftung</h2>
+                                <div className="space-y-2 mt-2">
+                                    <p>Der Kunde ist verantwortlich für die Druckbarkeit und Richtigkeit der Daten. Wir haften nicht für Konstruktionsfehler.</p>
+                                    <p>Unsere Drucke sind Prototypen und keine zertifizierten Bauteile für sicherheitskritische Anwendungen. Wir haften nicht für Schäden durch unsachgemässe Verwendung.</p>
+                                </div>
+                            </section>
+                            <section>
+                                <h2 className="font-bold text-slate-800 mb-2">§7 Datenschutz</h2>
+                                <p>Wir verwenden die vom Kunden übermittelten Daten (z. B. via Formspree-Schnittstelle) ausschliesslich zur Abwicklung der Anfrage und Bestellung. Die Daten werden nicht an unbefugte Dritte weitergegeben.</p>
+                            </section>
+                        </div>
+
+                        <div className="mt-10 pt-8 border-t border-slate-100">
+                            <button onClick={() => setShowQuestionForm(!showQuestionForm)}
+                                className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors font-semibold">
+                                <HelpCircle className="h-4 w-4" />
+                                Frage zum Angebot oder den AGB?
+                                <ChevronDown className={`h-4 w-4 transition-transform ${showQuestionForm ? 'rotate-180' : ''}`} />
+                            </button>
+                            {showQuestionForm && (
+                                <form ref={questionFormRef} onSubmit={handleSend} className="mt-6 space-y-4 anim-fadeIn">
+                                    <textarea required rows="4"
+                                        className="w-full border border-slate-200 rounded-2xl p-4 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 resize-none"
+                                        placeholder="Schreibe uns deine Frage..."
+                                        value={question}
+                                        onChange={(e) => setQuestion(e.target.value)}
+                                    />
+                                    <div className="flex items-center gap-4">
+                                        {sent && <span className="text-emerald-600 text-sm font-semibold flex items-center gap-1"><CheckCircle2 className="h-4 w-4" /> Gesendet!</span>}
+                                        <Btn type="submit" disabled={isSending || !question.trim()} size="sm">
+                                            {isSending ? 'Wird gesendet...' : 'Frage senden'}
+                                        </Btn>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- ABOUT US VIEW ---
+        const AboutUsView = ({ onBack }) => (
+            <div className="max-w-2xl mx-auto py-10 px-4 sm:px-6 anim-fadeIn">
+                <div className="mb-8">
+                    <Btn variant="ghost" size="sm" onClick={onBack} className="text-slate-500">
+                        <ArrowLeft className="h-4 w-4" /> Zurück
+                    </Btn>
+                </div>
+                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 text-center mb-6">
+                    <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                        <Printer className="h-8 w-8 text-amber-600" />
+                    </div>
+                    <h1 className="font-display text-2xl font-bold text-slate-900 mb-3">Über uns</h1>
+                    <p className="text-amber-600 font-semibold mb-4">Zwei Freunde, eine Leidenschaft: Die Perfektion im Detail.</p>
+                    <p className="text-slate-600 text-sm leading-relaxed">Da wir beide die gleichen Interessen haben und schon lange gute Freunde sind, haben wir Rorbas 3D Druck ins Leben gerufen. Wir brennen für den 3D-Druck und die Möglichkeiten der Informatik. Es fasziniert uns einfach, wie man aus einer digitalen Datei ein echtes Objekt in den Händen halten kann.</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[
+                        { name: 'Enrique', role: '3D-Druck & Coding', bio: 'Hey ich bin Enrique und bin 14 Jahre alt. Was mich antreibt ist der 3d Druck und das Coden Verschiedenster Projekte. Mein Ziel: Professioneller Programmierer zu werden.' },
+                        { name: 'Jack', role: '3D-Druck & Elektronik', bio: 'Ich bin Jack, bin 15 Jahre alt und Intressiere mich sehr für 3D Drucker und Elektronik, deshalb beginne ich im Sommer 2026 meine Lehre als Elektroniker.' }
+                    ].map(person => (
+                        <div key={person.name} className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 text-center">
+                            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                                <User className="h-7 w-7 text-slate-400" />
+                            </div>
+                            <h3 className="font-display font-bold text-slate-900 text-lg">{person.name}</h3>
+                            <p className="text-amber-600 text-xs font-semibold mb-3">{person.role}</p>
+                            <p className="text-slate-500 text-sm leading-relaxed">{person.bio}</p>
+                        </div>
+                    ))}
+                </div>
+                <div className="mt-6 bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+                    <h3 className="font-display font-bold text-slate-800 text-sm uppercase tracking-wider mb-4">Unsere Philosophie</h3>
+                    <div className="space-y-3">
+                        {[
+                            { t: 'Perfektion', d: 'Wir geben uns erst zufrieden, wenn der Druck wirklich perfekt ist.' },
+                            { t: 'Exklusivität', d: 'Lokal & Persönlich. Wir sind hier vor Ort in Rorbas aber auch im Ausland für Sie da.' },
+                            { t: 'Individualität', d: 'Ihre Idee, unser Projekt. Wir setzen ihren Wunsch gemeinsam um.' },
+                        ].map(item => (
+                            <div key={item.t} className="flex gap-3 items-start">
+                                <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
+                                <div><span className="font-bold text-slate-800 text-sm">{item.t}</span><span className="text-slate-500 text-sm"> — {item.d}</span></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- MY ORDERS VIEW ---
+        const MyOrdersView = ({ deviceId, onBack, onStartOrder }) => {
+            const [orders, setOrders] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+
+            React.useEffect(() => {
+                ApiService.getOrders(deviceId).then(data => { setOrders(data); setLoading(false); });
+            }, [deviceId]);
+
+            return (
+                <div className="max-w-2xl mx-auto py-10 px-4 sm:px-6 anim-fadeIn">
+                    <div className="mb-6 flex items-center justify-between">
+                        <Btn variant="ghost" size="sm" onClick={onBack} className="text-slate-500">
+                            <ArrowLeft className="h-4 w-4" /> Zurück
+                        </Btn>
+                        <h2 className="font-display font-bold text-slate-900 text-xl">Meine Bestellungen</h2>
+                    </div>
+
+                    {loading ? (
+                        <div className="text-center py-16"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mx-auto" /></div>
+                    ) : orders.length === 0 ? (
+                        <div className="bg-white rounded-3xl p-10 text-center border border-slate-100">
+                            <Box className="h-10 w-10 text-slate-300 mx-auto mb-4" />
+                            <p className="text-slate-500 mb-6">Noch keine Bestellungen auf diesem Gerät.</p>
+                            <Btn onClick={onStartOrder}>Jetzt Projekt starten</Btn>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {orders.map(order => {
+                                const status = ORDER_STATUS[order.status?.toUpperCase()] || ORDER_STATUS.PENDING;
+                                return (
+                                    <div key={order.id} className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div>
+                                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${status.color}`}>{status.label}</span>
+                                            </div>
+                                            <span className="text-xs text-slate-400 font-mono">{new Date(order.createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                        </div>
+                                        <h3 className="font-bold text-slate-900 mb-1 line-clamp-2">{order.description}</h3>
+                                        <p className="text-sm text-slate-500">{order.material}</p>
+                                        {order.adminNotes && (
+                                            <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                                                <p className="text-xs font-bold text-amber-700 mb-1">Update von Enrique & Jack</p>
+                                                <p className="text-sm text-amber-800 italic">"{order.adminNotes}"</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // --- ADMIN LOGIN VIEW ---
+        const AdminLoginView = ({ onLogin, onBack }) => {
+            const [password, setPassword] = React.useState('');
+            const [showPassword, setShowPassword] = React.useState(false);
+            const [error, setError] = React.useState('');
+            const [isLoading, setIsLoading] = React.useState(false);
+            const deviceId = getDeviceId();
+
+            const handlePasswordSubmit = async (e) => {
+                e.preventDefault();
+                setIsLoading(true);
+                setError('');
+                try {
+                    const res = await ApiService.login(password, deviceId);
+                    if (res.success) onLogin("Admin");
+                } catch (e) { setError('Falsches Passwort'); }
+                finally { setIsLoading(false); }
+            };
+
+            return (
+                <div className="min-h-[80vh] flex items-center justify-center px-4">
+                    <div className="w-full max-w-sm bg-white rounded-3xl shadow-lg border border-slate-100 p-8">
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center mb-3">
+                                    <Lock className="h-6 w-6 text-white" />
+                                </div>
+                                <h2 className="font-display font-bold text-slate-900 text-xl">Administrator</h2>
+                            </div>
+                            <Btn variant="ghost" size="sm" onClick={onBack}><X className="h-4 w-4" /></Btn>
+                        </div>
+                        <form onSubmit={handlePasswordSubmit} className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-2">Passwort</label>
+                                <div className="relative">
+                                    <input type={showPassword ? "text" : "password"} value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 pr-12"
+                                        placeholder="Sicherheitsschlüssel eingeben" autoFocus />
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-700 transition-colors">
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
+                            </div>
+                            {error && <p className="text-red-500 text-sm font-semibold">{error}</p>}
+                            <Btn type="submit" disabled={isLoading} className="w-full" size="lg">
+                                {isLoading ? 'Authentifizierung...' : 'Zugang gewähren'}
+                            </Btn>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- TEMPLATE MANAGER (Admin) ---
+        const TemplateManager = ({ templates, onChange }) => {
+            const [isAdding, setIsAdding] = React.useState(false);
+            const [newTemplate, setNewTemplate] = React.useState({ title: '', description: '', weight: '', images: [], skipColorSelection: false });
+            const [isUploading, setIsUploading] = React.useState(false);
+            const [deletingId, setDeletingId] = React.useState(null);
+
+            const handleFileChange = async (e) => {
+                const files = Array.from(e.target.files);
+                if (!files.length) return;
+                setIsUploading(true);
+                const base64Promises = files.map(file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); }));
+                try {
+                    const base64Images = await Promise.all(base64Promises);
+                    setNewTemplate(prev => ({ ...prev, images: [...prev.images, ...base64Images] }));
+                } catch { alert("Fehler beim Laden der Bilder."); }
+                finally { setIsUploading(false); }
+            };
+
+            const removeImage = (index) => setNewTemplate(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
+
+            const handleAdd = async (e) => {
+                e.preventDefault();
+                if (!newTemplate.images.length) { alert("Bitte mindestens ein Bild hinzufügen."); return; }
+                const res = await ApiService.addTemplate(newTemplate);
+                onChange(res);
+                setIsAdding(false);
+                setNewTemplate({ title: '', description: '', weight: '', images: [], skipColorSelection: false });
+            };
+
+            const handleDelete = async (id) => {
+                try { const res = await ApiService.deleteTemplate(id); onChange(res); setDeletingId(null); }
+                catch { alert("Fehler beim Löschen der Vorlage."); }
+            };
+
+            return (
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <h3 className="font-display font-bold text-white text-lg">Vorlagen-Kollektion</h3>
+                        <Button onClick={() => setIsAdding(!isAdding)} size="sm" variant={isAdding ? 'ghost' : 'secondary'} className="gap-2">
+                            {isAdding ? <><X className="h-3 w-3" /> Abbrechen</> : <><Plus className="h-3 w-3" /> Neue Vorlage</>}
+                        </Button>
+                    </div>
+
+                    {isAdding && (
+                        <form onSubmit={handleAdd} className="admin-card p-6 space-y-4 anim-fadeIn">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Titel</label>
+                                    <input required className="admin-input" value={newTemplate.title} onChange={e => setNewTemplate({ ...newTemplate, title: e.target.value })} placeholder="z.B. Handyhalter" /></div>
+                                <div><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Gewicht (g)</label>
+                                    <input type="number" className="admin-input" value={newTemplate.weight} onChange={e => setNewTemplate({ ...newTemplate, weight: e.target.value })} placeholder="z.B. 45" /></div>
+                                <div className="md:col-span-2"><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Bilder</label>
+                                    <label className="flex items-center gap-2 cursor-pointer border border-dashed border-white/20 rounded-xl p-3 text-slate-400 hover:text-white hover:border-white/40 transition-colors text-sm">
+                                        <Upload className="h-4 w-4" />
+                                        {isUploading ? 'Wird geladen...' : 'Bilder auswählen'}
+                                        <input type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} disabled={isUploading} />
+                                    </label>
+                                    {newTemplate.images.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {newTemplate.images.map((img, idx) => (
+                                                <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden group">
+                                                    <img src={img} className="w-full h-full object-cover" />
+                                                    <button type="button" onClick={() => removeImage(idx)} className="absolute inset-0 bg-red-900/80 text-red-300 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><Trash2 className="h-4 w-4" /></button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="md:col-span-2"><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Beschreibung</label>
+                                    <textarea required className="admin-input resize-none" rows="2" value={newTemplate.description} onChange={e => setNewTemplate({ ...newTemplate, description: e.target.value })} placeholder="Kurze Beschreibung..." /></div>
+                                <div className="flex items-center gap-3">
+                                    <input type="checkbox" id="skipColorSel" checked={newTemplate.skipColorSelection} onChange={e => setNewTemplate({ ...newTemplate, skipColorSelection: e.target.checked })} className="w-4 h-4 rounded" />
+                                    <label htmlFor="skipColorSel" className="text-sm text-slate-300 cursor-pointer">Farbauswahl überspringen</label>
+                                </div>
+                            </div>
+                            <Button type="submit" className="w-full" disabled={isUploading}>Kollektion erweitern</Button>
+                        </form>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {templates.map(tpl => (
+                            <div key={tpl.id} className="admin-card overflow-hidden group">
+                                <div className="h-40 bg-black/40 overflow-hidden"><img src={tpl.images?.[0] || tpl.imageUrl} alt={tpl.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" referrerPolicy="no-referrer" /></div>
+                                <div className="p-4">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div>
+                                            <h4 className="font-bold text-white">{tpl.title}</h4>
+                                            {tpl.weight && <span className="text-xs text-slate-400">{tpl.weight}g</span>}
+                                            {tpl.skipColorSelection && <span className="ml-2 text-xs bg-amber-900/40 text-amber-400 px-2 py-0.5 rounded-full">Ohne Farbwahl</span>}
+                                        </div>
+                                        {deletingId === tpl.id ? (
+                                            <div className="flex gap-1">
+                                                <button onClick={() => handleDelete(tpl.id)} className="text-xs text-red-400 px-2 py-1 bg-red-900/30 rounded-lg font-bold">Löschen</button>
+                                                <button onClick={() => setDeletingId(null)} className="text-xs text-slate-400 px-2 py-1 rounded-lg">X</button>
+                                            </div>
+                                        ) : (
+                                            <button onClick={() => setDeletingId(tpl.id)} className="text-slate-500 hover:text-red-400 transition-colors p-1"><Trash2 className="h-4 w-4" /></button>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-slate-400 line-clamp-2">{tpl.description}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- FILAMENT MANAGER (Admin) ---
+        const FilamentManager = ({ filaments, onChange }) => {
+            const [isAdding, setIsAdding] = React.useState(false);
+            const [editingId, setEditingId] = React.useState(null);
+            const [newFilament, setNewFilament] = React.useState({ name: '', color: '', colorHex: '#000000', material: 'PLA', pricePer100g: '', fixedPriceUnder50g: '' });
+            const [editForm, setEditForm] = React.useState({});
+
+            const handleAdd = async (e) => {
+                e.preventDefault();
+                const res = await ApiService.addFilament(newFilament);
+                onChange(res);
+                setIsAdding(false);
+                setNewFilament({ name: '', color: '', colorHex: '#000000', material: 'PLA', pricePer100g: '', fixedPriceUnder50g: '' });
+            };
+            const startEdit = (fil) => { setEditingId(fil.id); setEditForm({ ...fil }); };
+            const handleUpdate = async (e) => { e.preventDefault(); const res = await ApiService.updateFilament(editingId, editForm); onChange(res); setEditingId(null); };
+            const toggleStock = async (fil) => { const res = await ApiService.updateFilament(fil.id, { inStock: !fil.inStock }); onChange(res); };
+            const handleDelete = async (id) => { if (confirm("Filament wirklich löschen?")) { const res = await ApiService.deleteFilament(id); onChange(res); } };
+
+            return (
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <h3 className="font-display font-bold text-white text-lg">Material-Archiv</h3>
+                        <Button onClick={() => { setIsAdding(!isAdding); setEditingId(null); }} size="sm" variant="secondary" className="gap-2">
+                            {isAdding ? <><X className="h-3 w-3" /> Abbrechen</> : <><Plus className="h-3 w-3" /> Neu</>}
+                        </Button>
+                    </div>
+
+                    {isAdding && (
+                        <form onSubmit={handleAdd} className="admin-card p-6 grid grid-cols-1 md:grid-cols-2 gap-4 anim-fadeIn">
+                            <div><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Bezeichnung</label><input required className="admin-input" value={newFilament.name} onChange={e => setNewFilament({ ...newFilament, name: e.target.value })} placeholder="z.B. PLA Matt Schwarz" /></div>
+                            <div><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Material</label>
+                                <select className="admin-select" value={newFilament.material} onChange={e => setNewFilament({ ...newFilament, material: e.target.value })}>
+                                    <option value="PLA">PLA</option><option value="PETG">PETG</option><option value="TPU">TPU</option><option value="Spezial">Spezial</option>
+                                </select>
+                            </div>
+                            <div><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Farbbezeichnung</label><input required className="admin-input" value={newFilament.color} onChange={e => setNewFilament({ ...newFilament, color: e.target.value })} placeholder="z.B. Midnight Black" /></div>
+                            <div><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Farbwert (HEX)</label>
+                                <div className="flex gap-3 items-center">
+                                    <input type="color" className="h-8 w-8 bg-transparent border-0 cursor-pointer rounded" value={newFilament.colorHex} onChange={e => setNewFilament({ ...newFilament, colorHex: e.target.value })} />
+                                    <input className="admin-input flex-1 font-mono" value={newFilament.colorHex} onChange={e => setNewFilament({ ...newFilament, colorHex: e.target.value })} />
+                                </div>
+                            </div>
+                            <div><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Preis pro 100g (CHF)</label><input type="number" step="0.01" className="admin-input" value={newFilament.pricePer100g} onChange={e => setNewFilament({ ...newFilament, pricePer100g: e.target.value })} placeholder="5.50" /></div>
+                            <div><label className="block text-xs text-slate-400 uppercase tracking-wider mb-1">Fixpreis &lt; 50g (CHF)</label><input type="number" step="0.01" className="admin-input" value={newFilament.fixedPriceUnder50g} onChange={e => setNewFilament({ ...newFilament, fixedPriceUnder50g: e.target.value })} placeholder="3.00" /></div>
+                            <div className="md:col-span-2"><Button type="submit" className="w-full">Material registrieren</Button></div>
+                        </form>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filaments.map(fil => (
+                            <div key={fil.id} className={`admin-card p-4 flex flex-col gap-3 ${!fil.inStock ? 'opacity-40' : ''}`}>
+                                {editingId === fil.id ? (
+                                    <form onSubmit={handleUpdate} className="space-y-3 anim-fadeIn">
+                                        <div><label className="block text-xs text-slate-400 mb-1">Bezeichnung</label><input required className="admin-input text-sm" value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })}></input></div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div><label className="block text-xs text-slate-400 mb-1">Preis/100g</label><input type="number" step="0.01" className="admin-input text-sm" value={editForm.pricePer100g} onChange={e => setEditForm({ ...editForm, pricePer100g: e.target.value })} /></div>
+                                            <div><label className="block text-xs text-slate-400 mb-1">Fix &lt;50g</label><input type="number" step="0.01" className="admin-input text-sm" value={editForm.fixedPriceUnder50g} onChange={e => setEditForm({ ...editForm, fixedPriceUnder50g: e.target.value })} /></div>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <Button type="submit" size="xs" className="flex-1">Speichern</Button>
+                                            <Button type="button" onClick={() => setEditingId(null)} variant="ghost" size="xs" className="flex-1">Abbrechen</Button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    <>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-9 h-9 rounded-full border-2 border-white/10 flex-shrink-0" style={{ backgroundColor: fil.colorHex }} />
+                                                <div>
+                                                    <div className="font-bold text-white text-sm">{fil.name}</div>
+                                                    <div className="text-xs text-slate-400">{fil.material} • {fil.color}</div>
+                                                    {(fil.pricePer100g || fil.fixedPriceUnder50g) && (
+                                                        <div className="text-xs text-slate-500 mt-0.5 flex gap-2">
+                                                            {fil.pricePer100g && <span>{fil.pricePer100g} CHF/100g</span>}
+                                                            {fil.fixedPriceUnder50g && <span>Fix: {fil.fixedPriceUnder50g}</span>}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-1">
+                                                <button onClick={() => toggleStock(fil)} className={`p-1.5 transition-colors rounded-lg ${fil.inStock ? 'text-emerald-400 hover:text-white' : 'text-slate-500 hover:text-emerald-400'}`}><CheckCircle2 className="h-4 w-4" /></button>
+                                                <button onClick={() => startEdit(fil)} className="p-1.5 text-slate-500 hover:text-amber-400 transition-colors rounded-lg"><Edit className="h-4 w-4" /></button>
+                                                <button onClick={() => handleDelete(fil.id)} className="p-1.5 text-slate-500 hover:text-red-400 transition-colors rounded-lg"><Trash2 className="h-4 w-4" /></button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- BAN MANAGER (Admin) ---
+        const BanManager = () => {
+            const [bannedIds, setBannedIds] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+            const [newId, setNewId] = React.useState('');
+
+            React.useEffect(() => { ApiService.getBanned().then(data => { setBannedIds(data); setLoading(false); }); }, []);
+            const handleBan = async (e) => { e.preventDefault(); if (!newId.trim()) return; const res = await ApiService.banDevice(newId.trim()); setBannedIds(res); setNewId(''); };
+            const handleUnban = async (id) => { const res = await ApiService.unbanDevice(id); setBannedIds(res); };
+
+            return (
+                <div className="space-y-6">
+                    <h3 className="font-display font-bold text-white text-lg">Gerätesperrung</h3>
+                    <form onSubmit={handleBan} className="flex gap-3">
+                        <input className="admin-input flex-1 border border-white/10 rounded-xl px-4 py-2" value={newId} onChange={e => setNewId(e.target.value)} placeholder="Device ID eingeben" />
+                        <Button type="submit" size="sm" variant="danger">Sperren</Button>
+                    </form>
+                    {loading ? <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-400 mx-auto" /> :
+                        bannedIds.length === 0 ? <p className="text-slate-500 text-sm text-center py-8">Keine gesperrten Geräte.</p> :
+                            <div className="space-y-2">
+                                {bannedIds.map(id => (
+                                    <div key={id} className="admin-card p-3 flex items-center justify-between">
+                                        <span className="text-slate-300 font-mono text-sm">{id}</span>
+                                        <Button onClick={() => handleUnban(id)} size="xs" variant="ghost">Entsperren</Button>
+                                    </div>
+                                ))}
+                            </div>
+                    }
+                </div>
+            );
+        };
+
+        // --- PASSWORD MANAGER (Admin) ---
+        const PasswordManager = () => {
+            const [passwords, setPasswords] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+            const [newPw, setNewPw] = React.useState('');
+            const [showNew, setShowNew] = React.useState(false);
+            const [error, setError] = React.useState('');
+
+            React.useEffect(() => { ApiService.getPasswords().then(data => { setPasswords(data); setLoading(false); }); }, []);
+            const handleAdd = async (e) => {
+                e.preventDefault();
+                if (!newPw.trim()) return;
+                try { const res = await ApiService.addPassword(newPw); setPasswords(res); setNewPw(''); setError(''); }
+                catch (err) { setError(err.message); }
+            };
+            const handleDelete = async (pw) => {
+                try { const res = await ApiService.deletePassword(pw); setPasswords(res); setError(''); }
+                catch (err) { setError(err.message); }
+            };
+
+            return (
+                <div className="space-y-6">
+                    <h3 className="font-display font-bold text-white text-lg">Passwort-Verwaltung</h3>
+                    <form onSubmit={handleAdd} className="flex gap-3">
+                        <div className="relative flex-1">
+                            <input type={showNew ? "text" : "password"} className="admin-input border border-white/10 rounded-xl px-4 py-2 pr-10 w-full" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="Neues Passwort" />
+                            <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-2.5 text-slate-400"><Eye className="h-4 w-4" /></button>
+                        </div>
+                        <Button type="submit" size="sm">Hinzufügen</Button>
+                    </form>
+                    {error && <p className="text-red-400 text-sm">{error}</p>}
+                    {loading ? <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-400 mx-auto" /> :
+                        <div className="space-y-2">
+                            {passwords.map((pw, idx) => (
+                                <div key={idx} className="admin-card p-3 flex items-center justify-between">
+                                    <span className="text-slate-300 font-mono text-sm">{'•'.repeat(pw.length)}</span>
+                                    <Button onClick={() => handleDelete(pw)} size="xs" variant="danger">Löschen</Button>
+                                </div>
+                            ))}
+                        </div>
+                    }
+                </div>
+            );
+        };
+
+        // --- ADMIN DASHBOARD ---
+        const AdminDashboard = ({ currentUser, onLogout }) => {
+            const [activeTab, setActiveTab] = React.useState('orders');
+            const [orders, setOrders] = React.useState([]);
+            const [filaments, setFilaments] = React.useState([]);
+            const [templates, setTemplates] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
+            const [editingId, setEditingId] = React.useState(null);
+            const [editForm, setEditForm] = React.useState({});
+
+            const loadData = async () => {
+                setLoading(true);
+                const [o, f, t] = await Promise.all([ApiService.getOrders(), ApiService.getFilaments(), ApiService.getTemplates()]);
+                setOrders(o); setFilaments(f); setTemplates(t);
+                setLoading(false);
+            };
+
+            React.useEffect(() => { loadData(); }, []);
+
+            const startEditOrder = (order) => { setEditingId(order.id); setEditForm({ status: order.status, adminNotes: order.adminNotes || '' }); };
+            const saveEditOrder = async (id) => { const res = await ApiService.updateOrder(id, editForm); setOrders(res); setEditingId(null); };
+            const handleDeleteOrder = async (id) => { if (confirm("Bestellung wirklich löschen?")) { const res = await ApiService.deleteOrder(id); setOrders(res); } };
+
+            const tabs = [
+                { id: 'orders', label: 'Bestellungen', icon: <ClipboardList className="h-4 w-4" /> },
+                { id: 'filaments', label: 'Materialien', icon: <Database className="h-4 w-4" /> },
+                { id: 'templates', label: 'Vorlagen', icon: <Layout className="h-4 w-4" /> },
+                { id: 'ban', label: 'Sperren', icon: <ShieldBan className="h-4 w-4" /> },
+                { id: 'settings', label: 'Einstellungen', icon: <Settings className="h-4 w-4" /> },
+            ];
+
+            const Layout = (props) => <Icon {...props}><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="9" y1="21" x2="9" y2="9" /></Icon>;
+
+            return (
+                <div className="admin-panel min-h-screen">
+                    <div className="sticky top-0 z-40 bg-ebony/95 backdrop-blur border-b border-white/5 px-4 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                                <ServerIcon className="h-5 w-5 text-amber-400" />
+                            </div>
+                            <span className="font-display font-bold text-white">Admin Dashboard</span>
+                        </div>
+                        <Button onClick={onLogout} variant="ghost" size="sm" className="text-slate-400 hover:text-white">Logout</Button>
+                    </div>
+
+                    <div className="max-w-6xl mx-auto px-4 py-6">
+                        <div className="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2">
+                            {tabs.map(tab => (
+                                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${activeTab === tab.id ? 'bg-amber-500 text-slate-900' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+                                    {tab.icon} {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="admin-card p-6">
+                            {loading && activeTab !== 'settings' ? (
+                                <div className="flex justify-center py-16"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-400" /></div>
+                            ) : activeTab === 'filaments' ? <FilamentManager filaments={filaments} onChange={setFilaments} />
+                                : activeTab === 'templates' ? <TemplateManager templates={templates} onChange={setTemplates} />
+                                    : activeTab === 'ban' ? <BanManager />
+                                        : activeTab === 'settings' ? <PasswordManager />
+                                            : (
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center justify-between">
+                                                        <h2 className="font-display font-bold text-white text-xl">Bestellungen ({orders.length})</h2>
+                                                        <Button onClick={loadData} variant="secondary" size="sm" className="gap-2">
+                                                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Aktualisieren
+                                                        </Button>
+                                                    </div>
+                                                    {orders.length === 0 ? (
+                                                        <div className="text-center text-slate-500 py-16 border border-dashed border-white/10 rounded-2xl">Keine Bestellungen vorhanden.</div>
+                                                    ) : orders.map(order => (
+                                                        <div key={order.id} className="admin-card p-5 hover:border-amber-500/30 transition-all">
+                                                            {editingId === order.id ? (
+                                                                <div className="space-y-4 anim-fadeIn">
+                                                                    <div className="flex justify-between items-center pb-3 border-b border-white/10">
+                                                                        <h3 className="font-bold text-white">Bestellung bearbeiten</h3>
+                                                                        <Button onClick={() => setEditingId(null)} variant="ghost" size="sm"><X className="h-4 w-4" /></Button>
+                                                                    </div>
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                        <div><label className="block text-xs text-slate-400 mb-1">Status</label>
+                                                                            <select value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })} className="admin-select">
+                                                                                {Object.entries(ORDER_STATUS).map(([key, val]) => (<option key={val.id} value={val.id}>{val.label}</option>))}
+                                                                            </select>
+                                                                        </div>
+                                                                        <div><label className="block text-xs text-slate-400 mb-1">Admin Notiz</label>
+                                                                            <textarea value={editForm.adminNotes} onChange={e => setEditForm({ ...editForm, adminNotes: e.target.value })} className="admin-select w-full resize-none" rows="3" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex justify-end gap-2">
+                                                                        <Button onClick={() => setEditingId(null)} variant="ghost" size="sm">Abbrechen</Button>
+                                                                        <Button onClick={() => saveEditOrder(order.id)} size="sm">Speichern</Button>
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex flex-col md:flex-row justify-between gap-4">
+                                                                    <div className="flex-1 space-y-3">
+                                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${ORDER_STATUS[order.status?.toUpperCase()]?.color || 'bg-slate-700 text-white'}`}>
+                                                                                {ORDER_STATUS[order.status?.toUpperCase()]?.label || order.status}
+                                                                            </span>
+                                                                            <span className="text-slate-500 text-xs font-mono">#{order.id?.slice(-8)}</span>
+                                                                            <span className="text-slate-500 text-xs">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                                                        </div>
+                                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                                            <div><p className="text-xs text-slate-500 mb-0.5">Kunde</p><p className="text-white text-sm font-medium">{order.userName}</p></div>
+                                                                            <div><p className="text-xs text-slate-500 mb-0.5">Email</p><p className="text-white text-sm truncate">{order.userEmail}</p></div>
+                                                                            <div><p className="text-xs text-slate-500 mb-0.5">Material</p><p className="text-white text-sm">{order.material || order.filamentName}</p></div>
+                                                                            <div><p className="text-xs text-slate-500 mb-0.5">Vorlage</p><p className="text-white text-sm">{order.description?.slice(0, 30)}</p></div>
+                                                                        </div>
+                                                                        {order.adminNotes && (
+                                                                            <div className="bg-amber-900/20 border-l-2 border-amber-500 pl-3 py-2 rounded-r-lg">
+                                                                                <p className="text-xs text-amber-400 mb-0.5 font-bold">Admin Notiz</p>
+                                                                                <p className="text-amber-200 text-xs italic">{order.adminNotes}</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="flex md:flex-col gap-2 border-t md:border-t-0 md:border-l border-white/5 pt-3 md:pt-0 md:pl-4">
+                                                                        <Button onClick={() => startEditOrder(order)} variant="secondary" size="xs" className="gap-1"><Edit className="h-3 w-3" /> Bearbeiten</Button>
+                                                                        <Button onClick={() => { if (confirm("Gerät wirklich sperren?")) ApiService.banDevice(order.deviceId).then(() => alert("Gesperrt.")); }} variant="ghost" size="xs" className="text-slate-500 hover:text-red-400"><ShieldBan className="h-3 w-3" /> Sperren</Button>
+                                                                        <Button onClick={() => handleDeleteOrder(order.id)} variant="danger" size="xs" className="gap-1"><Trash2 className="h-3 w-3" /> Löschen</Button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- ORDER FORM ---
+        const OrderForm = ({ onCancel, onSubmitSuccess, deviceId, stockFilaments, templates, onNavigate, flow = 'idea' }) => {
+            const [step, setStep] = React.useState(1);
+            const [formData, setFormData] = React.useState({
+                projectType: flow === 'shop' ? 'templates' : 'describe',
+                projectDescription: '', selectedTemplateId: null,
+                qrType: 'website', qrUrl: '', qrWifiSsid: '', qrWifiPassword: '', qrWifiEncryption: 'WPA2',
+                qrSize: '10x10', qrNfc: false, qrForegroundColorId: null, qrBackgroundColorId: null,
+                filamentMode: 'stock', selectedFilamentId: null, customFilamentRequest: '',
+                userName: '', userEmail: '', userPhone: '', street: '', zip: '', city: ''
+            });
+            const [showNfcInfo, setShowNfcInfo] = React.useState(false);
+            const [selectedMaterialCategory, setSelectedMaterialCategory] = React.useState('PLA');
+            const [isSubmitting, setIsSubmitting] = React.useState(false);
+            const [showMaterialInfo, setShowMaterialInfo] = React.useState(false);
+            const [agbAccepted, setAgbAccepted] = React.useState(false);
+            const [previewImages, setPreviewImages] = React.useState(null);
+            const [currentPreviewIdx, setCurrentPreviewIdx] = React.useState(0);
+            const [activePriceId, setActivePriceId] = React.useState(null);
+            const [templateSearch, setTemplateSearch] = React.useState('');
+            const [selectedTemplateDetails, setSelectedTemplateDetails] = React.useState(null);
+            const formRef = React.useRef(null);
+            const materialInfoRef = React.useRef(null);
+
+            React.useEffect(() => {
+                if (showMaterialInfo && materialInfoRef.current) {
+                    setTimeout(() => { materialInfoRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+                }
+            }, [showMaterialInfo]);
+
+            const handleStepChange = (newStep) => {
+                setStep(newStep);
+                if (formRef.current) formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                else window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+
+            const calculatePrice = (filament, weight) => {
+                if (!filament || !weight) return null;
+                const w = parseFloat(weight);
+                if (isNaN(w)) return null;
+                let price = 0;
+                if (w < 50 && filament.fixedPriceUnder50g) price = parseFloat(filament.fixedPriceUnder50g);
+                else if (filament.pricePer100g) price = (w / 100) * parseFloat(filament.pricePer100g);
+                else return null;
+                return Math.ceil(price * 2) / 2;
+            };
+
+            const getStartingPrice = (weight) => {
+                if (!weight || !stockFilaments.length) return null;
+                const prices = stockFilaments.map(f => calculatePrice(f, weight)).filter(p => p !== null);
+                if (!prices.length) return null;
+                return Math.min(...prices);
+            };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setIsSubmitting(true);
+                const selectedStock = stockFilaments.find(f => f.id === formData.selectedFilamentId);
+                let materialText = "";
+                if (formData.projectType === 'templates') {
+                    const selectedTemplate = templates.find(t => t.id === formData.selectedTemplateId);
+                    if (selectedTemplate && selectedTemplate.skipColorSelection) materialText = "Farbauswahl übersprungen (Vorlage)";
+                }
+                if (!materialText) {
+                    if (formData.projectType === 'qrcode') {
+                        const fg = stockFilaments.find(f => f.id === formData.qrForegroundColorId);
+                        const bg = stockFilaments.find(f => f.id === formData.qrBackgroundColorId);
+                        materialText = `QR-Code Farben: Vordergrund: ${fg?.name || 'N/A'} (${fg?.material || ''}), Hintergrund: ${bg?.name || 'N/A'} (${bg?.material || ''})${formData.qrNfc ? ` + NFC Tag (+ ${NFC_SURCHARGE.toFixed(2)} CHF)` : ''}`;
+                    } else if (formData.filamentMode === 'stock' && selectedStock) {
+                        materialText = `Lager-Filament: ${selectedStock.name} (${selectedStock.material})`;
+                    } else {
+                        materialText = `Spezialwunsch: ${formData.customFilamentRequest}`;
+                    }
+                }
+                let finalDescription = formData.projectDescription;
+                if (formData.projectType === 'templates') {
+                    const tpl = templates.find(t => t.id === formData.selectedTemplateId);
+                    finalDescription = `VORLAGE: ${tpl?.title}\nBeschreibung: ${tpl?.description}\n\nZusatzinfos: ${formData.projectDescription}`;
+                } else if (formData.projectType === 'qrcode') {
+                    let qrContent = '';
+                    if (formData.qrType === 'website') qrContent = `Typ: Webseite\nURL: ${formData.qrUrl}`;
+                    else if (formData.qrType === 'google_review') qrContent = `Typ: Google Bewertung\nURL: ${formData.qrUrl}`;
+                    else if (formData.qrType === 'wifi') qrContent = `Typ: WLAN\nSSID: ${formData.qrWifiSsid}\nPasswort: ${formData.qrWifiPassword}\nVerschlüsselung: ${formData.qrWifiEncryption}`;
+                    else qrContent = `Typ: Sonstiges\nInhalt: ${formData.qrUrl}`;
+                    finalDescription = `QR-CODE ANFRAGE\n${qrContent}\nGröße: ${formData.qrSize} cm\nNFC Funktion: ${formData.qrNfc ? `JA (+ ${NFC_SURCHARGE.toFixed(2)} CHF)` : 'NEIN'}\n\nZusatzinfos: ${formData.projectDescription}`;
+                }
+                try {
+                    await ApiService.addOrder({ userName: formData.userName, userEmail: formData.userEmail, description: finalDescription, material: materialText, street: formData.street, zip: formData.zip, city: formData.city, userPhone: formData.userPhone }, deviceId);
+                    setIsSubmitting(false);
+                    onSubmitSuccess(false);
+                } catch (error) {
+                    alert("Es gab einen Fehler beim Speichern auf dem Server.");
+                    setIsSubmitting(false);
+                }
+            };
+
+            const filteredFilaments = stockFilaments.filter(f => f.material === selectedMaterialCategory);
+
+            const isStep1Valid = () => {
+                if (formData.projectType === 'describe') return formData.projectDescription.trim().length > 0;
+                if (formData.projectType === 'templates') return formData.selectedTemplateId !== null;
+                if (formData.projectType === 'qrcode') {
+                    if (formData.qrType === 'wifi') return formData.qrWifiSsid.trim().length > 0;
+                    return formData.qrUrl.trim().length > 0;
+                }
+                return true;
+            };
+
+            const isStep2Valid = () => {
+                if (formData.projectType === 'templates') {
+                    const tpl = templates.find(t => t.id === formData.selectedTemplateId);
+                    if (tpl && tpl.skipColorSelection) return true;
+                }
+                if (formData.projectType === 'qrcode') {
+                    if (formData.qrForegroundColorId && formData.qrBackgroundColorId) {
+                        const fg = stockFilaments.find(f => f.id === formData.qrForegroundColorId);
+                        const bg = stockFilaments.find(f => f.id === formData.qrBackgroundColorId);
+                        return !(fg && bg && fg.material !== bg.material);
+                    }
+                    return false;
+                }
+                if (formData.filamentMode === 'stock') return formData.selectedFilamentId !== null;
+                if (formData.filamentMode === 'custom') return formData.customFilamentRequest.trim().length > 0;
+                return false;
+            };
+
+            const isStep3Valid = () => formData.userName && formData.userEmail && formData.street && formData.zip && formData.city && agbAccepted;
+
+            const inputClass = "w-full border border-slate-200 rounded-2xl px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 placeholder-slate-400 text-sm";
+            const labelClass = "block text-sm font-semibold text-slate-700 mb-1.5";
+
+            return (
+                <div ref={formRef} className="w-full max-w-2xl mx-auto py-8 px-4 sm:px-6">
+                    {/* Step indicator */}
+                    <div className="flex items-center justify-center gap-2 mb-8">
+                        {[1, 2, 3].map(s => (
+                            <div key={s} className="flex items-center gap-2">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step === s ? 'bg-slate-900 text-white' : step > s ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
+                                    {step > s ? <Check className="h-4 w-4" /> : s}
+                                </div>
+                                {s < 3 && <div className={`w-12 h-0.5 ${step > s ? 'bg-emerald-400' : 'bg-slate-200'}`} />}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div className="p-6 md:p-8">
+                            {/* STEP 1 */}
+                            {step === 1 && (
+                                <div className="space-y-6 anim-fadeIn">
+                                    <div>
+                                        <h2 className="font-display text-xl font-bold text-slate-900">Dein Projekt</h2>
+                                        <p className="text-slate-500 text-sm mt-1">Was möchtest du drucken lassen?</p>
+                                    </div>
+
+                                    {/* Project Type Selection */}
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {[
+                                            { id: 'describe', label: 'Eigene Idee', icon: <Lightbulb className="h-5 w-5" /> },
+                                            { id: 'templates', label: 'Vorlage', icon: <Store className="h-5 w-5" /> },
+                                            { id: 'qrcode', label: 'QR-Code', icon: <QrCode className="h-5 w-5" /> },
+                                        ].map(type => (
+                                            <button key={type.id} type="button"
+                                                onClick={() => setFormData({ ...formData, projectType: type.id })}
+                                                className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 text-sm font-semibold transition-all ${formData.projectType === type.id ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 text-slate-600 hover:border-slate-400'}`}>
+                                                {type.icon} {type.label}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {formData.projectType === 'describe' && (
+                                        <div>
+                                            <label className={labelClass}>Beschreib dein Projekt</label>
+                                            <textarea rows="5" className={inputClass + " resize-none"} placeholder="z.B. Ich möchte einen Halter für meinen Schreibtisch drucken lassen. Masse ca. 10x5x3cm..."
+                                                value={formData.projectDescription} onChange={e => setFormData({ ...formData, projectDescription: e.target.value })} />
+                                            <p className="text-xs text-slate-400 mt-2">Tipp: Beschreibe Grösse, Verwendungszweck und ob du eine .stl Datei hast.</p>
+                                        </div>
+                                    )}
+
+                                    {formData.projectType === 'templates' && (
+                                        <div className="space-y-4">
+                                            <input type="search" className={inputClass} placeholder="Vorlage suchen..."
+                                                value={templateSearch} onChange={e => setTemplateSearch(e.target.value)} />
+                                            {templates.length === 0 ? (
+                                                <div className="text-center py-8 text-slate-400">
+                                                    <Box className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                                                    <p className="text-sm">Noch keine Vorlagen verfügbar.</p>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto custom-scrollbar">
+                                                    {templates.filter(t => !templateSearch || t.title?.toLowerCase().includes(templateSearch.toLowerCase())).map(tpl => (
+                                                        <button key={tpl.id} type="button"
+                                                            onClick={() => { setFormData({ ...formData, selectedTemplateId: tpl.id }); setSelectedTemplateDetails(tpl); setPreviewImages(tpl.images); setCurrentPreviewIdx(0); }}
+                                                            className={`rounded-2xl border-2 overflow-hidden text-left transition-all ${formData.selectedTemplateId === tpl.id ? 'border-slate-900 ring-2 ring-slate-900' : 'border-slate-100 hover:border-slate-300'}`}>
+                                                            <div className="h-28 bg-slate-100 overflow-hidden">
+                                                                <img src={tpl.images?.[0] || tpl.imageUrl} alt={tpl.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                                            </div>
+                                                            <div className="p-3">
+                                                                <p className="font-bold text-slate-900 text-sm">{tpl.title}</p>
+                                                                {tpl.weight && <p className="text-xs text-slate-400">{tpl.weight}g</p>}
+                                                            </div>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {formData.selectedTemplateId && (
+                                                <div>
+                                                    <label className={labelClass}>Zusätzliche Anmerkungen</label>
+                                                    <textarea rows="3" className={inputClass + " resize-none"} placeholder="Spezielle Wünsche oder Hinweise..."
+                                                        value={formData.projectDescription} onChange={e => setFormData({ ...formData, projectDescription: e.target.value })} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {formData.projectType === 'qrcode' && (
+                                        <div className="space-y-5">
+                                            <div>
+                                                <label className={labelClass}>QR-Code Typ</label>
+                                                <div className="grid grid-cols-2 gap-2">
+                                                    {[
+                                                        { id: 'website', label: 'Webseite' }, { id: 'google_review', label: 'Google Bewertung' },
+                                                        { id: 'wifi', label: 'WLAN' }, { id: 'other', label: 'Sonstiges' }
+                                                    ].map(t => (
+                                                        <button key={t.id} type="button" onClick={() => setFormData({ ...formData, qrType: t.id })}
+                                                            className={`p-3 rounded-2xl border-2 text-sm font-semibold transition-all ${formData.qrType === t.id ? 'border-slate-900 bg-slate-50' : 'border-slate-200 hover:border-slate-400'}`}>
+                                                            {t.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            {formData.qrType === 'wifi' ? (
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <label className={labelClass}>WLAN Name (SSID)</label>
+                                                        <input type="text" className={inputClass} placeholder="Netzwerkname"
+                                                            value={formData.qrWifiSsid} onChange={e => setFormData({ ...formData, qrWifiSsid: e.target.value })} />
+                                                    </div>
+                                                    <div>
+                                                        <label className={labelClass}>WLAN Passwort</label>
+                                                        <input type="text" className={inputClass} placeholder="Passwort"
+                                                            value={formData.qrWifiPassword} onChange={e => setFormData({ ...formData, qrWifiPassword: e.target.value })} />
+                                                    </div>
+                                                    <div>
+                                                        <label className={labelClass}>Verschlüsselung</label>
+                                                        <select className={inputClass + " appearance-none"} value={formData.qrWifiEncryption} onChange={e => setFormData({ ...formData, qrWifiEncryption: e.target.value })}>
+                                                            <option>WPA2</option><option>WPA3</option><option>WEP</option><option>None</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <label className={labelClass}>{formData.qrType === 'website' ? 'Webseiten-URL' : formData.qrType === 'google_review' ? 'Google Bewertungs-Link' : 'Inhalt'}</label>
+                                                    <input type={formData.qrType === 'other' ? 'text' : 'url'} className={inputClass}
+                                                        placeholder={formData.qrType === 'website' ? 'https://...' : formData.qrType === 'google_review' ? 'https://g.page/r/...' : 'Dein Text oder Link'}
+                                                        value={formData.qrUrl} onChange={e => setFormData({ ...formData, qrUrl: e.target.value })} />
+                                                </div>
+                                            )}
+                                            <div>
+                                                <label className={labelClass}>Grösse (max. 15x15 cm)</label>
+                                                <div className="flex gap-2">
+                                                    {['5x5', '10x10', '15x15'].map(size => (
+                                                        <button key={size} type="button" onClick={() => setFormData({ ...formData, qrSize: size })}
+                                                            className={`flex-1 py-2.5 rounded-2xl border-2 text-sm font-bold transition-all ${formData.qrSize === size ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 text-slate-600 hover:border-slate-400'}`}>
+                                                            {size}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                                                <button type="button" className="flex items-center gap-3" onClick={() => setFormData({ ...formData, qrNfc: !formData.qrNfc })}>
+                                                    <div className={`w-11 h-6 rounded-full relative flex-shrink-0 transition-colors ${formData.qrNfc ? 'bg-slate-900' : 'bg-slate-300'}`}>
+                                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${formData.qrNfc ? 'left-6' : 'left-1'}`} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-slate-900">NFC Funktion <span className="text-amber-600 ml-1">(+ {NFC_SURCHARGE.toFixed(2)} CHF)</span></p>
+                                                        <p className="text-xs text-slate-500">Chip einbetten</p>
+                                                    </div>
+                                                </button>
+                                                <button type="button" onClick={() => setShowNfcInfo(true)} className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 font-semibold">
+                                                    <HelpCircle className="h-3.5 w-3.5" /> Was ist das?
+                                                </button>
+                                            </div>
+                                            <textarea rows="3" className={inputClass + " resize-none"} placeholder="Zusätzliche Anmerkungen..."
+                                                value={formData.projectDescription} onChange={e => setFormData({ ...formData, projectDescription: e.target.value })} />
+                                            {showNfcInfo && (
+                                                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowNfcInfo(false)}>
+                                                    <div className="max-w-sm w-full bg-white rounded-3xl p-7 shadow-2xl" onClick={e => e.stopPropagation()}>
+                                                        <div className="flex justify-between items-center mb-5">
+                                                            <h4 className="font-display font-bold text-slate-900 text-lg">NFC Technologie</h4>
+                                                            <button onClick={() => setShowNfcInfo(false)} className="text-slate-400 hover:text-slate-700"><X className="h-5 w-5" /></button>
+                                                        </div>
+                                                        <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
+                                                            <p>Ein NFC (Near Field Communication) Tag ist ein winziger, batterieloser Chip, der in das 3D-Modell eingebettet wird.</p>
+                                                            <p>Wenn jemand sein Smartphone in die Nähe des QR-Codes hält, kann das Handy automatisch eine Website öffnen – ganz ohne den Code scannen zu müssen.</p>
+                                                        </div>
+                                                        <Btn onClick={() => setShowNfcInfo(false)} className="w-full mt-5">Verstanden</Btn>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between pt-2">
+                                        <Btn variant="ghost" onClick={onCancel} className="text-slate-500">Abbrechen</Btn>
+                                        <Btn onClick={() => {
+                                            if (formData.projectType === 'templates') {
+                                                const tpl = templates.find(t => t.id === formData.selectedTemplateId);
+                                                if (tpl && tpl.skipColorSelection) { handleStepChange(3); return; }
+                                            }
+                                            handleStepChange(2);
+                                        }} disabled={!isStep1Valid()}>
+                                            Weiter <ArrowRight className="h-4 w-4" />
+                                        </Btn>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* STEP 2 */}
+                            {step === 2 && (
+                                <div className="space-y-6 anim-fadeIn">
+                                    <div>
+                                        <h2 className="font-display text-xl font-bold text-slate-900">Material & Farbe</h2>
+                                        <p className="text-slate-500 text-sm mt-1">Wähle dein gewünschtes Filament</p>
+                                    </div>
+
+                                    {formData.projectType === 'qrcode' ? (
+                                        <div className="space-y-6">
+                                            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-start gap-3">
+                                                <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                                <p className="text-sm text-amber-800">Wähle zwei Farben für deinen QR-Code. Wir empfehlen hohen Kontrast für beste Scanbarkeit.</p>
+                                            </div>
+                                            {['Vordergrund (Code-Farbe)', 'Hintergrund-Farbe'].map((label, idx) => {
+                                                const isQrFg = idx === 0;
+                                                const selectedId = isQrFg ? formData.qrForegroundColorId : formData.qrBackgroundColorId;
+                                                return (
+                                                    <div key={label} className="space-y-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${isQrFg ? 'bg-slate-900' : 'bg-amber-400 text-slate-900'}`}>{idx + 1}</div>
+                                                            <label className="text-sm font-bold text-slate-700">{label}</label>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                            {stockFilaments.map(f => (
+                                                                <button key={`${isQrFg ? 'fg' : 'bg'}-${f.id}`} type="button" disabled={!f.inStock}
+                                                                    onClick={() => setFormData({ ...formData, [isQrFg ? 'qrForegroundColorId' : 'qrBackgroundColorId']: f.id })}
+                                                                    className={`p-3 rounded-xl border-2 text-left text-xs font-semibold transition-all flex items-center gap-2 ${selectedId === f.id ? 'border-slate-900 bg-slate-50' : 'border-slate-100 hover:border-slate-300'} ${!f.inStock ? 'opacity-30 cursor-not-allowed' : ''}`}>
+                                                                    <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: f.colorHex }} />
+                                                                    <span className="truncate">{f.name}</span>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                            {formData.qrForegroundColorId && formData.qrBackgroundColorId && (() => {
+                                                const fg = stockFilaments.find(f => f.id === formData.qrForegroundColorId);
+                                                const bg = stockFilaments.find(f => f.id === formData.qrBackgroundColorId);
+                                                if (fg && bg && fg.material !== bg.material) return (
+                                                    <div className="p-4 bg-red-50 rounded-2xl border border-red-200 flex gap-3">
+                                                        <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+                                                        <div>
+                                                            <p className="font-bold text-red-700 text-sm mb-1">Unterschiedliche Materialien</p>
+                                                            <p className="text-xs text-red-600">Vordergrund ({fg.material}) und Hintergrund ({bg.material}) müssen aus dem gleichen Material sein.</p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-5">
+                                            <div className="flex gap-2">
+                                                {[
+                                                    { id: 'stock', label: 'Unser Lager' },
+                                                    { id: 'custom', label: 'Spezialwunsch' }
+                                                ].map(m => (
+                                                    <button key={m.id} type="button" onClick={() => setFormData({ ...formData, filamentMode: m.id })}
+                                                        className={`flex-1 py-2.5 rounded-2xl border-2 text-sm font-bold transition-all ${formData.filamentMode === m.id ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 text-slate-600 hover:border-slate-400'}`}>
+                                                        {m.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {formData.filamentMode === 'stock' && (
+                                                <div className="space-y-4">
+                                                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                                                        {[...new Set(stockFilaments.filter(f => f.inStock).map(f => f.material))].map(mat => (
+                                                            <button key={mat} type="button" onClick={() => setSelectedMaterialCategory(mat)}
+                                                                className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${selectedMaterialCategory === mat ? 'bg-amber-400 text-slate-900' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                                                                {mat}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {filteredFilaments.map(f => {
+                                                            const price = f.fixedPriceUnder50g ? `Ab ${f.fixedPriceUnder50g} CHF` : f.pricePer100g ? `${f.pricePer100g} CHF/100g` : '';
+                                                            return (
+                                                                <button key={f.id} type="button" disabled={!f.inStock}
+                                                                    onClick={() => { setFormData({ ...formData, selectedFilamentId: f.id }); setActivePriceId(f.id); }}
+                                                                    className={`p-3 rounded-2xl border-2 text-left transition-all ${formData.selectedFilamentId === f.id ? 'border-slate-900 bg-slate-50 ring-2 ring-slate-900' : 'border-slate-100 hover:border-slate-300'} ${!f.inStock ? 'opacity-30 cursor-not-allowed' : ''}`}>
+                                                                    <div className="flex items-center gap-2 mb-2">
+                                                                        <div className="w-5 h-5 rounded-full flex-shrink-0 border border-slate-200" style={{ backgroundColor: f.colorHex }} />
+                                                                        <span className="text-xs font-bold text-slate-900 truncate">{f.name}</span>
+                                                                    </div>
+                                                                    {price && <p className="text-xs text-slate-400">{price}</p>}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {formData.filamentMode === 'custom' && (
+                                                <div>
+                                                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 mb-4 flex items-start gap-3">
+                                                        <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                                        <p className="text-sm text-amber-800">Spezialfilamente: + {CUSTOM_FILAMENT_SURCHARGE.toFixed(2)} CHF Aufschlag. Wir benötigen ca. 2-3 Wochen Lieferzeit.</p>
+                                                    </div>
+                                                    <label className={labelClass}>Dein Filament-Wunsch</label>
+                                                    <textarea rows="3" className={inputClass + " resize-none"}
+                                                        placeholder="Beschreibe die gewünschte Farbe, Material oder einen Markennamen..."
+                                                        value={formData.customFilamentRequest} onChange={e => setFormData({ ...formData, customFilamentRequest: e.target.value })} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between pt-2">
+                                        <Btn variant="ghost" onClick={() => handleStepChange(1)} className="text-slate-500">
+                                            <ArrowLeft className="h-4 w-4" /> Zurück
+                                        </Btn>
+                                        <Btn onClick={() => handleStepChange(3)} disabled={!isStep2Valid()}>
+                                            Weiter <ArrowRight className="h-4 w-4" />
+                                        </Btn>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* STEP 3 */}
+                            {step === 3 && (
+                                <form onSubmit={handleSubmit} className="space-y-5 anim-fadeIn">
+                                    <div>
+                                        <h2 className="font-display text-xl font-bold text-slate-900">Deine Kontaktdaten</h2>
+                                        <p className="text-slate-500 text-sm mt-1">Damit wir dich erreichen können</p>
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Name *</label>
+                                        <input type="text" className={inputClass} required placeholder="Dein vollständiger Name"
+                                            value={formData.userName} onChange={e => setFormData({ ...formData, userName: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>E-Mail *</label>
+                                        <input type="email" className={inputClass} required placeholder="deine@email.ch"
+                                            value={formData.userEmail} onChange={e => setFormData({ ...formData, userEmail: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Telefon (optional)</label>
+                                        <input type="tel" className={inputClass} placeholder="+41 79 123 45 67"
+                                            value={formData.userPhone} onChange={e => setFormData({ ...formData, userPhone: e.target.value })} />
+                                    </div>
+                                    <div className="pt-2">
+                                        <h3 className="font-bold text-slate-800 mb-3 text-sm">Lieferadresse</h3>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className={labelClass}>Strasse & Nr. *</label>
+                                                <input type="text" className={inputClass} required placeholder="Musterstrasse 12"
+                                                    value={formData.street} onChange={e => setFormData({ ...formData, street: e.target.value })} />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label className={labelClass}>PLZ *</label>
+                                                    <input type="text" className={inputClass} required placeholder="8427"
+                                                        value={formData.zip} onChange={e => setFormData({ ...formData, zip: e.target.value })} />
+                                                </div>
+                                                <div>
+                                                    <label className={labelClass}>Ort *</label>
+                                                    <input type="text" className={inputClass} required placeholder="Rorbas"
+                                                        value={formData.city} onChange={e => setFormData({ ...formData, city: e.target.value })} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                                        <input type="checkbox" id="agbAccept" checked={agbAccepted} onChange={e => setAgbAccepted(e.target.checked)}
+                                            className="w-4 h-4 mt-0.5 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer" />
+                                        <label htmlFor="agbAccept" className="text-sm text-slate-600 cursor-pointer">
+                                            Ich akzeptiere die <button type="button" onClick={() => onNavigate(ViewState.AGB)} className="text-slate-900 font-bold underline underline-offset-2 hover:text-amber-600">AGB & Datenschutzbestimmungen</button> von Rorbas 3D Druck.
+                                        </label>
+                                    </div>
+                                    <div className="flex justify-between pt-2">
+                                        <Btn variant="ghost" type="button" onClick={() => {
+                                            const tpl = templates.find(t => t.id === formData.selectedTemplateId);
+                                            handleStepChange(tpl?.skipColorSelection ? 1 : 2);
+                                        }} className="text-slate-500">
+                                            <ArrowLeft className="h-4 w-4" /> Zurück
+                                        </Btn>
+                                        <Btn type="submit" disabled={isSubmitting || !isStep3Valid()} size="lg">
+                                            {isSubmitting ? 'Wird gesendet...' : <><Send className="h-4 w-4" /> Anfrage senden</>}
+                                        </Btn>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- BANNED SCREEN ---
+        const BannedScreen = () => (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+                <div className="bg-white rounded-3xl p-10 text-center max-w-sm border border-slate-100 shadow-sm">
+                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-5">
+                        <ShieldBan className="h-8 w-8 text-red-500" />
+                    </div>
+                    <h2 className="font-display font-bold text-slate-900 text-xl mb-3">Zugang gesperrt</h2>
+                    <p className="text-slate-500 text-sm">Dein Gerät wurde gesperrt. Bitte kontaktiere uns bei Fragen.</p>
+                    <div className="mt-5 text-xs text-slate-300 font-mono bg-slate-50 rounded-xl p-2">Error: DEVICE_BLACKLISTED</div>
+                </div>
+            </div>
+        );
+
+        // --- DESKTOP NAVBAR ---
+        const Navbar = ({ currentView, onNavigate, hasOrders }) => {
+            const [isOpen, setIsOpen] = React.useState(false);
+            if (currentView === ViewState.BANNED) return null;
+
+            return (
+                <>
+                    {/* Desktop Navbar */}
+                    <nav className="hidden lg:flex fixed w-full z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+                        <div className="max-w-6xl mx-auto px-6 w-full flex items-center justify-between h-16">
+                            <button onClick={() => onNavigate(ViewState.HOME)} className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-xl bg-amber-400 flex items-center justify-center">
+                                    <Printer className="h-4 w-4 text-slate-900" />
+                                </div>
+                                <span className="font-display font-black text-xl text-slate-900">Rorbas<span className="text-amber-500">3D</span></span>
+                            </button>
+                            <div className="flex items-center gap-8">
+                                <button onClick={() => onNavigate(ViewState.HOME)} className={`text-sm font-semibold transition-colors ${currentView === ViewState.HOME ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'}`}>Home</button>
+                                <button onClick={() => onNavigate(ViewState.ORDER, 'shop')} className={`text-sm font-semibold transition-colors ${currentView === ViewState.ORDER ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'}`}>Ideen & Vorlagen</button>
+                                <button className="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">Preise</button>
+                                {hasOrders && <button onClick={() => onNavigate(ViewState.MY_ORDERS)} className={`text-sm font-semibold transition-colors ${currentView === ViewState.MY_ORDERS ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'}`}>Bestellungen</button>}
+                            </div>
+                            <button onClick={() => onNavigate(ViewState.ABOUT_US)}
+                                className="flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 hover:border-slate-400 text-sm font-semibold text-slate-700 transition-all bg-white shadow-sm">
+                                <div className="flex -space-x-1">
+                                    <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-slate-900 border-2 border-white z-10">EN</div>
+                                    <div className="w-6 h-6 rounded-full bg-sky-400 flex items-center justify-center text-[9px] font-black text-white border-2 border-white">JA</div>
+                                </div>
+                                <span className="text-xs text-slate-400 uppercase tracking-wider">LERNE UNS KENNEN</span>
+                                <span className="font-bold text-slate-900">Über uns</span>
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* Mobile Topbar */}
+                    <div className="lg:hidden fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-slate-100">
+                        <div className="flex items-center justify-between px-4 h-14">
+                            <button onClick={() => onNavigate(ViewState.HOME)} className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-xl bg-amber-400 flex items-center justify-center">
+                                    <Printer className="h-3.5 w-3.5 text-slate-900" />
+                                </div>
+                                <span className="font-display font-black text-lg text-slate-900">Rorbas<span className="text-amber-500">3D</span></span>
+                            </button>
+                            <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-500 hover:text-slate-900">
+                                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                            </button>
+                        </div>
+                        {isOpen && (
+                            <div className="bg-white border-t border-slate-100 px-4 py-4 space-y-3 shadow-lg anim-fadeIn">
+                                {[
+                                    { label: 'Home', view: ViewState.HOME },
+                                    { label: 'Ideen & Vorlagen', view: ViewState.ORDER, flow: 'shop' },
+                                    { label: 'Über uns', view: ViewState.ABOUT_US },
+                                    ...(hasOrders ? [{ label: 'Meine Bestellungen', view: ViewState.MY_ORDERS }] : []),
+                                    { label: 'AGB & Rechtliches', view: ViewState.AGB },
+                                ].map(item => (
+                                    <button key={item.label} onClick={() => { onNavigate(item.view, item.flow || null); setIsOpen(false); }}
+                                        className="block w-full text-left text-sm font-semibold text-slate-600 hover:text-slate-900 py-2 border-b border-slate-50">
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </>
+            );
+        };
+
+        // --- START MODAL ---
+        const StartModal = ({ onClose, onNavigate }) => (
+            <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4 bg-slate-900/60 backdrop-blur-sm anim-fadeIn" onClick={onClose}>
+                <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden anim-scaleIn" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between p-5 border-b border-slate-100">
+                        <h2 className="font-display font-bold text-slate-900 text-lg">Wie geht's los? 🚀</h2>
+                        <button onClick={onClose} className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all"><X className="h-5 w-5" /></button>
+                    </div>
+                    <div className="p-5 space-y-3">
+                        <button onClick={() => { onNavigate(ViewState.ORDER, 'shop'); onClose(); }}
+                            className="w-full flex items-center gap-4 p-5 rounded-2xl bg-amber-50 border-2 border-amber-100 hover:border-amber-300 transition-all text-left group">
+                            <div className="w-12 h-12 rounded-2xl bg-amber-400 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                                <Store className="h-6 w-6 text-slate-900" />
+                            </div>
+                            <div>
+                                <p className="font-bold text-slate-900">Aus dem Shop bestellen</p>
+                                <p className="text-xs text-slate-500 mt-0.5">Vorlagen durchstöbern oder QR-Code scannen</p>
+                            </div>
+                        </button>
+                        <button onClick={() => { onNavigate(ViewState.ORDER, 'idea'); onClose(); }}
+                            className="w-full flex items-center gap-4 p-5 rounded-2xl bg-sky-50 border-2 border-sky-100 hover:border-sky-300 transition-all text-left group">
+                            <div className="w-12 h-12 rounded-2xl bg-sky-400 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                                <Lightbulb className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <p className="font-bold text-slate-900">Eigene Idee drucken</p>
+                                <p className="text-xs text-slate-500 mt-0.5">Datei (.stl) hochladen oder Spezialanfertigung anfragen</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // --- HOME PAGE ---
+        const HomePage = ({ onStart, onNavigate, hasOrders, templates }) => {
+            const categories = [
+                { icon: <Gamepad2 className="h-8 w-8" />, label: 'Gaming', color: 'bg-amber-100', iconColor: 'text-amber-600', dotColor: 'bg-amber-400' },
+                { icon: <Wrench className="h-8 w-8" />, label: 'Ersatzteile', color: 'bg-sky-100', iconColor: 'text-sky-600', dotColor: 'bg-sky-400' },
+                { icon: <Leaf className="h-8 w-8" />, label: 'Deko', color: 'bg-emerald-100', iconColor: 'text-emerald-600', dotColor: 'bg-emerald-400' },
+                { icon: <Triangle className="h-8 w-8" />, label: 'Prototypen', color: 'bg-violet-100', iconColor: 'text-violet-600', dotColor: 'bg-violet-400' },
+            ];
+
+            return (
+                <div className="min-h-screen bg-slate-100">
+                    {/* ===== MOBILE LAYOUT ===== */}
+                    <div className="lg:hidden pt-20 px-4 pb-8">
+                        <div className="flex items-start justify-between mb-5">
+                            <div>
+                                <h1 className="font-display font-black text-3xl text-slate-900 leading-tight">Hoi! 👋</h1>
+                                <p className="font-display font-bold text-slate-500 text-lg mt-0.5">Rorbas 3D Druck</p>
+                            </div>
+                            <button onClick={() => onNavigate(ViewState.ABOUT_US)}
+                                className="flex items-center gap-2 px-3 py-2 rounded-2xl border border-slate-200 bg-white shadow-sm text-xs font-semibold text-slate-700 hover:border-slate-400 transition-all">
+                                <div className="flex -space-x-1">
+                                    <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-slate-900 border-2 border-white z-10">EN</div>
+                                    <div className="w-6 h-6 rounded-full bg-sky-400 flex items-center justify-center text-[9px] font-black text-white border-2 border-white">JA</div>
+                                </div>
+                                Über uns
+                            </button>
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-4 mb-5 border border-slate-100 shadow-sm anim-fadeInUp">
+                            <p className="text-slate-600 leading-relaxed text-sm">
+                                Wir sind Enrique & Jack. Lade deine eigene Datei hoch oder wähle aus unseren Vorlagen für dein Projekt!
+                            </p>
+                        </div>
+
+                        <button onClick={onStart}
+                            className="w-full bg-slate-900 text-white font-display font-black text-xl py-5 rounded-3xl shadow-lg hover:bg-slate-700 active:scale-98 transition-all mb-8 anim-fadeInUp anim-delay-1">
+                            Start
+                        </button>
+
+                        {hasOrders && (
+                            <button onClick={() => onNavigate(ViewState.MY_ORDERS)}
+                                className="w-full mb-5 p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-center gap-3 hover:bg-amber-100 transition-all">
+                                <Box className="h-4 w-4 text-amber-600" />
+                                <span className="text-sm font-bold text-amber-700">Meine Bestellungen ansehen</span>
+                            </button>
+                        )}
+
+                        <div className="mb-4 anim-fadeInUp anim-delay-2">
+                            <h2 className="font-display font-black text-xl text-slate-900 mb-4">Ideen & Vorlagen</h2>
+                            <div className="grid grid-cols-2 gap-3">
+                                {categories.map((cat, idx) => (
+                                    <button key={idx} onClick={() => onNavigate(ViewState.ORDER, 'shop')}
+                                        className={`category-card ${cat.color} rounded-3xl p-6 flex flex-col items-center gap-3 border border-transparent`}>
+                                        <span className={cat.iconColor}>{cat.icon}</span>
+                                        <span className={`font-display font-black text-base ${cat.iconColor}`}>{cat.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ===== DESKTOP LAYOUT ===== */}
+                    <div className="hidden lg:block pt-16">
+                        <div className="max-w-6xl mx-auto px-6 py-16">
+                            <div className="grid grid-cols-2 gap-16 items-start">
+                                {/* Left Column */}
+                                <div className="space-y-6">
+                                    <div className="anim-fadeInUp">
+                                        <h1 className="font-display font-black text-6xl text-slate-900 leading-tight mb-2">
+                                            Hoi! 👋<br />
+                                            Dein Projekt,<br />
+                                            <span className="text-amber-500">perfekt gedruckt.</span>
+                                        </h1>
+                                    </div>
+                                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm anim-fadeInUp anim-delay-1">
+                                        <p className="text-slate-600 leading-relaxed text-lg">
+                                            Wir sind Enrique & Jack. Lade deine eigene Datei hoch oder wähle aus unseren Vorlagen für dein Projekt.
+                                        </p>
+                                    </div>
+
+                                    <button onClick={onStart}
+                                        className="w-full bg-slate-900 text-white font-display font-black text-2xl py-6 rounded-3xl shadow-lg hover:bg-slate-700 transition-all anim-fadeInUp anim-delay-2">
+                                        Start
+                                    </button>
+
+                                    {hasOrders && (
+                                        <button onClick={() => onNavigate(ViewState.MY_ORDERS)}
+                                            className="w-full p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center gap-3 hover:bg-amber-100 transition-all">
+                                            <Box className="h-5 w-5 text-amber-600" />
+                                            <span className="font-bold text-amber-700">Meine Bestellungen ansehen</span>
+                                        </button>
+                                    )}
+
+                                    {/* How it works */}
+                                    <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                                        <h3 className="font-display font-bold text-slate-800 text-sm uppercase tracking-wider">So funktioniert's</h3>
+                                        {[
+                                            { num: '01', title: 'Anfrage', desc: 'Übermittle uns deine Vision oder wähle aus unserer Kollektion.' },
+                                            { num: '02', title: 'Präzision', desc: 'Enrique und Jack optimieren jedes Detail für den perfekten Druck.' },
+                                            { num: '03', title: 'Lieferung', desc: 'Dein Objekt wird sorgfältig verpackt und ist bereit für dich.' },
+                                        ].map(step => (
+                                            <div key={step.num} className="flex items-start gap-4">
+                                                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 text-xs font-black flex-shrink-0">{step.num}</div>
+                                                <div>
+                                                    <p className="font-bold text-slate-900 text-sm">{step.title}</p>
+                                                    <p className="text-xs text-slate-500">{step.desc}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Right Column — Category Grid */}
+                                <div className="anim-fadeInUp anim-delay-2">
+                                    <h2 className="font-display font-black text-2xl text-slate-900 mb-5">Ideen & Vorlagen</h2>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {categories.map((cat, idx) => (
+                                            <button key={idx} onClick={() => onNavigate(ViewState.ORDER, 'shop')}
+                                                className={`category-card ${cat.color} rounded-3xl p-8 flex flex-col items-center gap-3 border border-transparent`}>
+                                                <span className={cat.iconColor}>{cat.icon}</span>
+                                                <span className={`font-display font-black text-lg ${cat.iconColor}`}>{cat.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {/* Material preview */}
+                                    <div className="mt-4 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Verfügbare Materialien</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {['PLA', 'PETG', 'TPU', 'Spezial'].map(m => (
+                                                <span key={m} className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">{m}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- FOOTER ---
+        const Footer = ({ onNavigate }) => (
+            <footer className="bg-slate-900 text-white py-12 mt-auto">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
+                        <div>
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="w-8 h-8 rounded-xl bg-amber-400 flex items-center justify-center"><Printer className="h-4 w-4 text-slate-900" /></div>
+                                <span className="font-display font-black text-xl">Rorbas<span className="text-amber-400">3D</span></span>
+                            </div>
+                            <p className="text-slate-400 text-sm leading-relaxed">Lokal, präzise und mit einem Auge für das Außergewöhnliche.</p>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4">Navigation</h3>
+                            <div className="space-y-2">
+                                <button onClick={() => onNavigate(ViewState.HOME)} className="block text-sm text-slate-300 hover:text-white transition-colors font-medium">Home</button>
+                                <button onClick={() => onNavigate(ViewState.ABOUT_US)} className="block text-sm text-slate-300 hover:text-white transition-colors font-medium">Über uns</button>
+                                <button onClick={() => onNavigate(ViewState.ORDER)} className="block text-sm text-slate-300 hover:text-white transition-colors font-medium">Projekt Starten</button>
+                                <button onClick={() => onNavigate(ViewState.MY_ORDERS)} className="block text-sm text-slate-300 hover:text-white transition-colors font-medium">Bestellungen</button>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-4">Kontakt</h3>
+                            <div className="space-y-2">
+                                <a href={`mailto:${EMAIL_RECIPIENT}`} className="flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors font-medium">
+                                    <Mail className="h-4 w-4 text-amber-400" />{EMAIL_RECIPIENT}
+                                </a>
+                                <div className="flex items-center gap-2 text-sm text-slate-400">
+                                    <MapPin className="h-4 w-4 text-amber-400" />Rorbas, Schweiz
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                        <span>© {new Date().getFullYear()} Rorbas 3D Druck. Alle Rechte vorbehalten.</span>
+                        <div className="flex items-center gap-6">
+                            <button onClick={() => onNavigate(ViewState.AGB)} className="hover:text-white transition-colors font-semibold">AGB & Datenschutz</button>
+                            <button onClick={() => onNavigate(ViewState.IMPRESSUM)} className="hover:text-white transition-colors font-semibold">Impressum</button>
+                            <button onClick={() => onNavigate(ViewState.ADMIN_LOGIN)} className="opacity-10 hover:opacity-100 transition-opacity p-1" title="Admin">
+                                <Lock className="h-3 w-3" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        );
+
+        // --- MAIN APP ---
+        const App = () => {
+            const [view, setView] = React.useState(ViewState.HOME);
+            const [orderFlow, setOrderFlow] = React.useState('idea');
+            const [deviceId, setDeviceId] = React.useState('');
+            const [hasOrders, setHasOrders] = React.useState(false);
+            const [currentUser, setCurrentUser] = React.useState(null);
+            const [filaments, setFilaments] = React.useState([]);
+            const [templates, setTemplates] = React.useState([]);
+            const [showStartModal, setShowStartModal] = React.useState(false);
+
+            React.useEffect(() => {
+                const id = getDeviceId();
+                setDeviceId(id);
+                ApiService.getBanned().then(bannedIds => {
+                    if (bannedIds.includes(id)) setView(ViewState.BANNED);
+                    else ApiService.getOrders(id).then(orders => setHasOrders(orders.length > 0));
+                });
+                ApiService.getFilaments().then(setFilaments);
+                ApiService.getTemplates().then(setTemplates);
+            }, []);
+
+            const handleNavigate = (newView, flow = null) => {
+                setView(newView);
+                if (flow) setOrderFlow(flow);
+                window.scrollTo(0, 0);
+            };
+
+            const handleStartOrder = () => handleNavigate(ViewState.ORDER, 'idea');
+            const handleOrderSuccess = () => {
+                setHasOrders(true);
+                handleNavigate(ViewState.SUCCESS);
+                ApiService.getOrders(deviceId).then(orders => setHasOrders(orders.length > 0));
+            };
+            const handleAdminLogin = (user) => { setCurrentUser(user); handleNavigate(ViewState.ADMIN_DASHBOARD); };
+            const handleLogout = () => { setCurrentUser(null); handleNavigate(ViewState.HOME); };
+
+            if (view === ViewState.BANNED) return <BannedScreen />;
+
+            return (
+                <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+                    {view !== ViewState.ADMIN_DASHBOARD && view !== ViewState.ADMIN_LOGIN && view !== ViewState.BANNED && (
+                        <Navbar currentView={view} onNavigate={handleNavigate} hasOrders={hasOrders} />
+                    )}
+
+                    <main className="flex-grow">
+                        {view === ViewState.HOME && (
+                            <>
+                                <HomePage onStart={() => setShowStartModal(true)} onNavigate={handleNavigate} hasOrders={hasOrders} templates={templates} />
+                                {showStartModal && <StartModal onClose={() => setShowStartModal(false)} onNavigate={handleNavigate} />}
+                            </>
+                        )}
+
+                        {view === ViewState.ORDER && (
+                            <div className="anim-fadeInUp pt-16 lg:pt-20">
+                                <OrderForm key={orderFlow} flow={orderFlow}
+                                    onCancel={() => handleNavigate(ViewState.HOME)}
+                                    onSubmitSuccess={handleOrderSuccess}
+                                    deviceId={deviceId}
+                                    stockFilaments={filaments}
+                                    templates={templates}
+                                    onNavigate={handleNavigate} />
+                            </div>
+                        )}
+
+                        {view === ViewState.SUCCESS && (
+                            <div className="min-h-[70vh] flex items-center justify-center px-4 pt-20 anim-scaleIn">
+                                <div className="text-center max-w-sm mx-auto">
+                                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Sparkles className="h-10 w-10 text-emerald-600" />
+                                    </div>
+                                    <h2 className="font-display font-black text-3xl text-slate-900 mb-3">Anfrage übermittelt! 🎉</h2>
+                                    <p className="text-slate-500 mb-8 leading-relaxed">Vielen Dank! Wir haben deine Anfrage erhalten und werden uns bald bei dir melden.</p>
+                                    <div className="space-y-3">
+                                        <Btn onClick={() => handleNavigate(ViewState.MY_ORDERS)} size="lg" className="w-full">Meine Bestellung ansehen</Btn>
+                                        <Btn variant="ghost" onClick={() => handleNavigate(ViewState.HOME)} className="w-full text-slate-500">Zurück zur Startseite</Btn>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {view === ViewState.AGB && <div className="pt-14 lg:pt-16"><AGBView onBack={() => handleNavigate(ViewState.HOME)} /></div>}
+                        {view === ViewState.ABOUT_US && <div className="pt-14 lg:pt-16"><AboutUsView onBack={() => handleNavigate(ViewState.HOME)} /></div>}
+                        {view === ViewState.MY_ORDERS && <div className="pt-14 lg:pt-16"><MyOrdersView deviceId={deviceId} onBack={() => handleNavigate(ViewState.HOME)} onStartOrder={handleStartOrder} /></div>}
+                        {view === ViewState.ADMIN_LOGIN && <div className="pt-14 lg:pt-16"><AdminLoginView onLogin={handleAdminLogin} onBack={() => handleNavigate(ViewState.HOME)} /></div>}
+                        {view === ViewState.ADMIN_DASHBOARD && <AdminDashboard currentUser={currentUser} onLogout={handleLogout} />}
+                    </main>
+
+                    {view !== ViewState.ADMIN_DASHBOARD && view !== ViewState.ADMIN_LOGIN && view !== ViewState.BANNED && (
+                        <Footer onNavigate={handleNavigate} />
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
